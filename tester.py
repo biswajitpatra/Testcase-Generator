@@ -7,23 +7,20 @@ import re
 import copy
 import tqdm
 import itertools
-''' 
-TODO::::::::::
-1. take the yaml file as input
-2. graph and tree
-3. range modification
-4. add external input for any variable
-5. remove random
-6. tqdm implement 
-7. add eval expression in properties
-8. add only one file for evaluation
-9. characters range a-z A-Z like regex
-10. range of length
-11. add checker for yaml
-12. analyze different probabilities (normal, x^2 , increasing , decreasing)
-13. add complexity analysis
-'''
-doc = yaml.full_load(open('file2.yaml'))
+import argparse
+from functools import partial
+from range_class import allrange
+
+parser = argparse.ArgumentParser(description="Create test cases based on input")
+parser.add_argument("path",metavar="path",type=str,help='The path to yaml')
+
+args = parser.parse_args()
+input_path = args.path
+
+if not os.path.isfile(input_path):
+    raise Exception("The following path to yaml file does not exist")
+
+doc = yaml.full_load(open(input_path))
 
 if "preprocess" in doc:
     os.system(doc["preprocess"])
@@ -39,15 +36,34 @@ if(doc['input-creator-file']==''):
     times = input_for["times"]
     var = { x:None for x in input_for["variables"]}
 
-# def nrange(value):
-    
+
+def evaluator(match):
+	match = match.group()
+	return str(eval(match[1:-1]))
+
 def product_nth(lists, num):
     res = []
     for a in reversed(lists):
         res.insert(0, a[num % len(a)])
         num //= len(a)
     return res
-    
+
+def sample(n, k):
+    if n < k :
+        raise Exception("Not enough values to be distinct")
+    # assume n is much larger than k
+    randbelow = partial(random.randrange, n)
+    # from random.py
+    result = [None] * k
+    selected = set()
+    selected_add = selected.add
+    for i in range(k):
+        j = randbelow()
+        while j in selected:
+            j = randbelow()
+        selected_add(j)
+        result[i] = j
+    return result
 
 def get_values(cond):
     global var
@@ -56,14 +72,12 @@ def get_values(cond):
         if type(cond[i]) == str:
             if ("{}" not in cond[i]) and (i not in ["value","format"]):
                 cond[i] = cond[i].format(**var)
+                cond[i] = re.sub('<.+?>',evaluator,cond[i])
     
     if cond["type"] in ["integer","int"]:
-        lower_limit,upper_limit = cond["range"].split('-')
-        lower_limit = int(lower_limit)
-        upper_limit = int(upper_limit)
-        return range(lower_limit,upper_limit+1)
+        return allrange(str(cond["range"]),int)
     elif cond["type"] in ["string","str"]:
-        return list(cond["range"])
+        return allrange(str(cond["range"]),str)
     
 
 def create_var(cond, original=False):
@@ -78,18 +92,12 @@ def create_var(cond, original=False):
         if type(cond[i]) == str:
             if ("{}" not in cond[i]) and (i not in ["value","format"]):
                 cond[i] = cond[i].format(**var)
+                cond[i] = re.sub('<.+?>',evaluator,cond[i])
 
     if cond["type"] in ["integer","int"]:
-        if "random" in cond :
-            lower_limit,upper_limit = cond["range"].split('-')
-            lower_limit = int(lower_limit)
-            upper_limit = int(upper_limit)
-            ele = randint(lower_limit,upper_limit)
-        else :
-            ele = int(cond["range"])
+        ele = int(allrange(str(cond["range"]),int).random())
     elif cond["type"] in ["string","str"]:
-        if "random" in cond :
-            ele = ''.join(random.choices(cond["range"],k = int(cond["length"])))
+        ele = ''.join(allrange(str(cond["range"]),str).random(k = int(cond["length"])))
     elif cond["type"] in ["list","array"]:
         ele = []
         req_var = {x:None for x in re.findall(r'(?<=(?<!\{)\{)[^{}]*(?=\}(?!\}))', cond["value"])}
@@ -101,7 +109,7 @@ def create_var(cond, original=False):
                 pro*= len(tmp)
                 req_lst.append(tmp)
             # print(req_lst)
-            indices = random.sample(range(pro),int(cond["length"]))
+            indices = sample(pro,int(cond["length"]))
             if "order" in cond:
                 if cond["order"]=="increasing":
                     indices.sort()
@@ -138,9 +146,13 @@ def create_var(cond, original=False):
         
     #     i = 0
     #     while(i<len(arr)):
-            
+                        
         
     # elif cond["type"] in ["graph"]:
+    #     cond["nodes"] = int(cond["nodes"])
+    #     cond["directed"] = 
+
+        
     
     if original:
         return ele
@@ -150,40 +162,47 @@ def create_var(cond, original=False):
 
 def yield_input(times):
     global var
-    if(doc['input-creator-file']!=''):
+    if(doc.get('input-creator-file','')!=''):
         for _ in range(times):
             out = subprocess.check_output(doc['input-creator-file'],shell=True).decode('utf-8')
             yield out
         return
 
     for _ in range(times):
+        checker = False
+        while(checker==False):
+            if "testcases" in input_for:
+                if '-' in str(input_for["testcases"]):
+                    lower_limit,upper_limit = input_for["testcases"].split('-')
+                    lower_limit = int(lower_limit)
+                    upper_limit = int(upper_limit)
+                    testcases = randint(lower_limit,upper_limit)
+                else:    
+                    testcases = int(input_for["testcases"])
+                ret = str(testcases)+'\n'
+            else:
+                testcases = 1
+                ret = ""
 
-        if "testcases" in input_for:
-            if '-' in str(input_for["testcases"]):
-                lower_limit,upper_limit = input_for["testcases"].split('-')
-                lower_limit = int(lower_limit)
-                upper_limit = int(upper_limit)
-                testcases = randint(lower_limit,upper_limit)
-            else:    
-                testcases = int(input_for["testcases"])
-            ret = str(testcases)+'\n'
-        else:
-            testcases = 1
-            ret = ""
-
-        for _ in range(testcases):
-            for i in var:
-                if "part" not in input_for["variables"][i]:
-                    var[i] = create_var(copy.deepcopy(input_for["variables"][i]))
-            ret += input_for["structure"].format(**var)
-        
+            for _ in range(testcases):
+                for i in var:
+                    if "part" not in input_for["variables"][i]:
+                        var[i] = create_var(copy.deepcopy(input_for["variables"][i]))
+                ret += input_for["structure"].format(**var)
+            
+            checker = True
+            if input_for.get("input-checker-file",'')!='':
+                    check_out = subprocess.check_output(input_for["input-checker-file"], input = str.encode(ret),shell=True).decode('utf-8')
+                    if int(check_out)==0:
+                        checker = False           
         yield ret
 
 
 for inp in yield_input(times):
     if "files" not in doc:
         print(inp)
-        input("Continue?")
+        if input("Continue?").lower() == 'n':
+            break
     else:
         if "brute" in doc["files"]:
             try:
