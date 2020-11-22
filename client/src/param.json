@@ -1,0 +1,21 @@
+{
+    "Integer":{
+        "range":{"value":"1-10"}
+    },
+    "String":{
+        "length":{"value":"10"},
+        "range":{"value":"a-d"}
+    },
+    "Array":{
+        "length":{"value":"10"},
+        "value":{"value":"1 "},
+        "order":{"options":["None","increasing","decreasing"]},
+        "distinct":{"options":["false","true"]}
+    },
+    "Graph":{
+
+    },
+    "Tree":{
+
+    }
+}
