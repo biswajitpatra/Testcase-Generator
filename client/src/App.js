@@ -1,5 +1,6 @@
 import Nav from './navbar.js';
 import Var from './importer.js';
+import InputForm from './input_form.js';
 // import logo from './logo.svg';
 import {Container,Row,Col,Accordion,Spinner,Card,InputGroup,FormControl} from 'react-bootstrap';
 import './App.css';
@@ -25,16 +26,16 @@ function App() {
           <Col xs={5}>
             <Container>
               <center><h3>Input format</h3></center>
-              
+              <InputForm/>
             </Container>
           </Col>
           <Col>
             <Card>
               <Card.Body>
               <Card.Title>Sample Output</Card.Title>
-              <Spinner animation="grow" /> 
+              <Spinner animation="grow" variant="danger"/> 
               <InputGroup>
-                <FormControl as="textarea" aria-label="With textarea" id="output" disabled style={{height:'300px'}}>
+                <FormControl as="textarea" aria-label="With textarea" id="output" disabled rows={10}>
                  </FormControl>
               </InputGroup>
               </Card.Body>

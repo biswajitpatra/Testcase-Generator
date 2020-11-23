@@ -23,17 +23,17 @@ class Var extends React.Component {
                                 if("options" in param[this.props.value][ob]){
                                     return (
                                         <Form.Group>
-                                        <Form.Label htmlFor={ob}>{ob}</Form.Label>
-                                        <Form.Control as="select" id={ob}>
-                                            {param[this.props.value][ob]["options"].map((op)=>(<option>{op}</option>))}
-                                        </Form.Control>
+                                            <Form.Label htmlFor={ob}>{ob}</Form.Label>
+                                            <Form.Control as="select" id={ob}>
+                                                {param[this.props.value][ob]["options"].map((op)=>(<option>{op}</option>))}
+                                            </Form.Control>
                                         </Form.Group>
                                     )
                                 }else{
                                     return (
                                         <Form.Group>
-                                        <Form.Label htmlFor={ob}>{ob}</Form.Label>
-                                        <Form.Control placeholder={param[this.props.value][ob]["value"]} id={ob}/>
+                                            <Form.Label htmlFor={ob}>{ob}</Form.Label>
+                                            <Form.Control placeholder={param[this.props.value][ob]["value"]} id={ob}/>
                                         </Form.Group>
                                     )
                                 }

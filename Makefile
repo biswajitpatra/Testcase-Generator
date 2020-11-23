@@ -7,11 +7,16 @@ install:
 	@cd client && yarn install
 
 run:
+	@echo "Building files..."
 	@cd client && yarn build
+	@echo "Starting server"
 	@python3 server.py
 
 frontend:
 	@cd client && yarn start server
+
+backend:
+	@python3 server.py
 
 
 

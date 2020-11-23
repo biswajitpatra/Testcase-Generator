@@ -11,6 +11,11 @@ cors = CORS(app)
 def check():
     return "Welcome to home"
 
+@app.route('/api')
+@cross_origin()
+def main_file():
+    return "Check!"
+
 @app.route('/')
 @cross_origin()
 def home():
