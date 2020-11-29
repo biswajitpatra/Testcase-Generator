@@ -1,24 +1,28 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import FilledInput from '@material-ui/core/FilledInput';
-import FormControl from '@material-ui/core/FormControl';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import InputLabel from '@material-ui/core/InputLabel';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import TextField from '@material-ui/core/TextField';
-import Container from '@material-ui/core/Container';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Typography from '@material-ui/core/Typography';
-import CircularProgress from '@material-ui/core/CircularProgress';
-export default function OutputFormFields() {
+import { makeStyles ,withStyles} from '@material-ui/core/styles';
+import {Container,CssBaseline,Typography,CircularProgress,Box,Paper} from '@material-ui/core';
+
+export default function OutputFormFields(props) {
     return (
       <React.Fragment>
         <CssBaseline />
-        <Container style={{paddingTop:1}} maxWidth="sm">
-            <h1>Sample Output</h1>
-            <CircularProgress disableShrink />
-        <Typography component="div" style={{ backgroundColor: '#cfe8fc', height: '30vh' }} />
-      </Container>
+        <Container>
+                <Box m={3}>
+                  <Typography variant="h4" display="block" align="center"><b>Sample Output</b></Typography>
+                </Box>
+                
+                <Box  style={{ backgroundColor: '#cfe8fc'}} 
+                      height="400px" 
+                      overflow="auto" 
+                      p={2} 
+                      fontFamily="Monospace" 
+                      fontSize="h6.fontSize"
+                      borderRadius={10}
+                      borderColor="error.main">
+                      <CircularProgress disableShrink />
+                      <pre>{props.text}</pre> 
+                </Box>
+            </Container>
       </React.Fragment>
     );
   }
