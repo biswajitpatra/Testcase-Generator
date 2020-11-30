@@ -1,5 +1,5 @@
 import React from 'react';
-import {TextField,MenuItem,Switch, FormControlLabel,Button} from '@material-ui/core';
+import {TextField,MenuItem,Switch, FormControlLabel,Button,Box} from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import params from '../../param.json';
 
@@ -68,10 +68,15 @@ const IOSSwitch = withStyles((theme) => ({
 class Var extends React.Component{
   render(){
     const {classes} = this.props;
+    let button;
+    if(this.props.edit){
+        button = <Button  variant="contained" color="secondary" ><Box px={10}>Delete</Box></Button>;
+    }else{
+        button = <Button fullWidth variant="contained" color="primary"> ADD </Button>;
+    }
     return (
         <form className={classes.root} autoComplete="off">
           <TextField
-              id="outlined-multiline-static"
               label="Name"
               variant="outlined"
               fullWidth
@@ -98,7 +103,6 @@ class Var extends React.Component{
                     }else{
                         return (
                           <TextField
-                              id="outlined-multiline-static"
                               label={ob}
                               variant="outlined"
                               fullWidth
@@ -107,14 +111,14 @@ class Var extends React.Component{
                     }
                 })
             }
-          <FormControlLabel
+          <Box width="100%" m={1}>
+            <FormControlLabel
               control={<IOSSwitch/>}
               label="Part"
-          /> 
-          <Button fullWidth variant="contained" color="primary"  >
-                ADD
-          </Button>
-        </form>
+            /> 
+          </Box>
+          {button}
+      </form>
 
     )
   }
