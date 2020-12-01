@@ -2,6 +2,7 @@ import React from 'react';
 import {TextField,MenuItem,Switch, FormControlLabel,Button,Box} from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import params from '../../param.json';
+import {connect} from 'react-redux';
 
 const styles = (theme) => ({
     root: {
@@ -66,34 +67,113 @@ const IOSSwitch = withStyles((theme) => ({
   });
 
 class Var extends React.Component{
+  constructor(props){
+      super(props);
+      this.state={};
+      // console.log(this.props);
+      // console.log("hello",params[this.props.type])
+      if("value" in this.props)
+        this.state = this.props.value;
+      else{
+        var param_t = {}
+        for(var key in params[this.props.type]){
+          param_t[key] = params[this.props.type][key].value;
+        }
+        param_t["Name"] = "";
+        param_t["Part"] = false;
+        this.state =  param_t;
+      }
+      // console.log(this.state);
+      this.state["type"]=this.props.type;
+
+      this.handleChange = this.handleChange.bind(this);
+      this.handleAdd = this.handleAdd.bind(this);
+      this.handleDelete = this.handleDelete.bind(this);
+  }
+
+  handleDelete(event){
+    this.props.dispatch({
+      type:"delete",
+      name:this.state.Name,
+    });
+  }
+
+  handleChange(event){
+    // console.log(event.target.name);
+    if(event.target.name==="Part"){
+      this.setState({[event.target.name]:event.target.checked},()=>{
+        if(this.props.edit){
+          this.props.dispatch({
+            type:"update",
+            name:this.state.Name,
+            value:this.state,
+          });
+        }
+      });
+    }else
+      this.setState({[event.target.name]:event.target.value},()=>{
+        if(this.props.edit){
+          this.props.dispatch({
+            type:"update",
+            name:this.state.Name,
+            value:this.state,
+          });
+        }
+      });
+    
+  }
+
+  handleAdd(event){
+    this.props.dispatch({
+      type:"add",
+      name:this.state.Name,
+      value:this.state,
+    });
+
+    var param_t = {}
+    for(var key in params[this.props.type]){
+      param_t[key] = params[this.props.type][key].value;
+    }
+    param_t["Name"] = "";
+    param_t["Part"] = false;
+    this.setState(param_t);
+  }
+
   render(){
     const {classes} = this.props;
     let button;
     if(this.props.edit){
-        button = <Button  variant="contained" color="secondary" ><Box px={10}>Delete</Box></Button>;
+        button = <Button  variant="contained" color="secondary" onClick={this.handleDelete} ><Box px={10}>Delete</Box></Button>;
     }else{
-        button = <Button fullWidth variant="contained" color="primary"> ADD </Button>;
+        button = <Button fullWidth variant="contained" color="primary" onClick={this.handleAdd}> ADD </Button>;
     }
     return (
-        <form className={classes.root} autoComplete="off">
+        <div className={classes.root} autoComplete="off">
           <TextField
               label="Name"
               variant="outlined"
               fullWidth
-              size="small"/>
+              size="small"
+              value={this.state.Name}
+              onChange={this.handleChange}
+              disabled={this.props.edit}
+              name="Name"/>
               {
-                Object.keys(params[this.props.value]).map((ob)=>{
-                    if("options" in params[this.props.value][ob]){
+                Object.keys(params[this.props.type]).map((ob,i)=>{
+                    if("options" in params[this.props.type][ob]){
                         return (
                           <TextField
                               select
-                              id="outlined-multiline-static"
                               label={ob}
                               variant="outlined"
                               fullWidth
                               size="small"
+                              key={i}
+                              value={this.state[ob]}
+                              onChange={this.handleChange}
+                              name={ob}
                               >
-                                    {params[this.props.value][ob]["options"].map((option) => (
+                                    {params[this.props.type][ob]["options"].map((option) => (
                                       <MenuItem key={option} value={option}>
                                         {option}
                                       </MenuItem>
@@ -106,7 +186,12 @@ class Var extends React.Component{
                               label={ob}
                               variant="outlined"
                               fullWidth
-                              size="small"/>
+                              size="small" 
+                              key={i}
+                              value={this.state[ob]}
+                              onChange={this.handleChange}
+                              name={ob}
+                              />
                         )
                     }
                 })
@@ -115,13 +200,20 @@ class Var extends React.Component{
             <FormControlLabel
               control={<IOSSwitch/>}
               label="Part"
+              checked={this.state.Part}
+              onChange={this.handleChange}  
+              name="Part"
             /> 
           </Box>
           {button}
-      </form>
+      </div>
 
     )
   }
 }
 
-export default withStyles(styles,{withTheme:true})(Var)
+const mapStateToProps = (state) =>({
+    variables : state.variables
+})
+
+export default connect(mapStateToProps)(withStyles(styles,{withTheme:true})(Var));

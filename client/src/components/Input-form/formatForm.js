@@ -18,8 +18,8 @@ export default function FormatFormFields(){
       </Box>
       <Container>
           {
-            Object.keys(params).map((ele)=>(
-              <Accordion expanded={expanded === ele} onChange={handleChange(ele)}>
+            Object.keys(params).map((ele,i)=>(
+              <Accordion expanded={expanded === ele} key={i} onChange={handleChange(ele)}>
               <AccordionSummary 
                     aria-controls="panel1d-content" 
                     id="panel1d-header"
@@ -27,7 +27,7 @@ export default function FormatFormFields(){
                 <Box px={3} fontSize="h6.fontSize">{ele}</Box>
               </AccordionSummary>
               <AccordionDetails>      
-                <Box width="100%"><Var value={ele}/></Box>
+                <Box width="100%"><Var type={ele}/></Box>
               </AccordionDetails>
             </Accordion>
             ))

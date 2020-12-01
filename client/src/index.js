@@ -4,11 +4,39 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import 'fontsource-roboto';
-// import 'bootstrap/dist/css/bootstrap.min.css';
+import {createStore} from 'redux';
+import {Provider} from 'react-redux';
+
+const initial_state={
+  variables:{}
+};
+
+function reducer(state=initial_state , action){
+    // console.log(action);
+    switch(action.type){
+      case "add":
+        if(!(action.name in state.variables)){
+            return {...state,variables:{...state.variables,[action.name]:action.value}}
+        }
+        return state;
+      case "delete":
+        const new_state = {...state,variables:{...state.variables,[action.name]:{}}};
+        delete new_state.variables[action.name];
+        return new_state;
+      case "update":
+        return {...state,variables:{...state.variables,[action.name]:action.value}}
+      default:
+        return state;
+    }
+}
+
+const store = createStore(reducer);
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Provider store={store}>
+      <App />
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root')
 );

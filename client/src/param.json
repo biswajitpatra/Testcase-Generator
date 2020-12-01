@@ -1,16 +1,16 @@
 {
     "Integer":{
-        "range":{"value":"1-10"}
+        "range":{"value":""}
     },
     "String":{
-        "length":{"value":"10"},
-        "range":{"value":"a-d"}
+        "length":{"value":""},
+        "range":{"value":""}
     },
     "Array":{
-        "length":{"value":"10"},
-        "value":{"value":"1 "},
-        "order":{"options":["None","increasing","decreasing"]},
-        "distinct":{"options":["false","true"]}
+        "length":{"value":""},
+        "value":{"value":""},
+        "order":{"options":["None","increasing","decreasing"],"value":["None"]},
+        "distinct":{"options":["false","true"],"value":["false"]}
     },
     "Graph":{
 
