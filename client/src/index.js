@@ -8,7 +8,8 @@ import {createStore} from 'redux';
 import {Provider} from 'react-redux';
 
 const initial_state={
-  variables:{}
+  variables:{},
+  sample_output: ""
 };
 
 function reducer(state=initial_state , action){
@@ -24,7 +25,9 @@ function reducer(state=initial_state , action){
         delete new_state.variables[action.name];
         return new_state;
       case "update":
-        return {...state,variables:{...state.variables,[action.name]:action.value}}
+        return {...state,variables:{...state.variables,[action.name]:action.value}};
+      case "sample_output":
+        return {...state,sample_output:action.value};
       default:
         return state;
     }

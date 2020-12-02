@@ -12,7 +12,7 @@ from functools import partial
 from range_class import allrange
 
 parser = argparse.ArgumentParser(description="Create test cases based on input")
-parser.add_argument("path",metavar="path",type=str,help='The path to yaml')
+parser.add_argument("path",metavar="path",type=str,help='The path to yaml/json')
 
 args = parser.parse_args()
 input_path = args.path
@@ -31,7 +31,7 @@ if "files" in doc:
         brute = doc["files"]['brute']
     code = doc["files"]['code']
 
-if(doc['input-creator-file']==''):
+if(doc.get('input-creator-file','')==''):
     input_for = doc["input"]
     times = input_for["times"]
     var = { x:None for x in input_for["variables"]}
@@ -113,7 +113,7 @@ def create_var(cond, original=False):
             if "order" in cond:
                 if cond["order"]=="increasing":
                     indices.sort()
-                else if cond["order"]=="decreasing":
+                elif cond["order"]=="decreasing":
                     indices.sort(reverse=True)
             for ind in indices:
                 idx = product_nth(req_lst,ind)
@@ -130,7 +130,7 @@ def create_var(cond, original=False):
             if "order" in cond:
                 if cond["order"]=="increasing":
                     f_arr.sort()
-                else if cond["order"]=="decreasing":
+                elif cond["order"]=="decreasing":
                     f_arr.sort(reverse=True)
             for k in range(int(cond["length"])):
                 for i,j in enumerate(req_var):

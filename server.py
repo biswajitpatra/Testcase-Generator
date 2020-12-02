@@ -1,7 +1,7 @@
 from flask import Flask,render_template,send_from_directory,request, jsonify,make_response
 from flask_cors import CORS, cross_origin
 import boto3
-import os
+from server.main import get_sample_output
 
 app = Flask(__name__ ,static_folder='client/build',static_url_path='')
 cors = CORS(app)
@@ -9,12 +9,14 @@ cors = CORS(app)
 @app.route('/home')
 @cross_origin()
 def check():
-    return "Welcome to home"
+    return "hello world"
 
-@app.route('/api')
+@app.route('/sample_output',methods=['POST'])
 @cross_origin()
-def main_file():
-    return "Check!"
+def sample_output():
+    content = request.get_json()
+    output = get_sample_output(content)
+    return output
 
 @app.route('/')
 @cross_origin()
@@ -23,4 +25,4 @@ def home():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0',debug=True)

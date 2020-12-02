@@ -1,8 +1,10 @@
 import React from 'react';
 import { makeStyles ,withStyles} from '@material-ui/core/styles';
 import {Container,CssBaseline,Typography,CircularProgress,Box,Paper} from '@material-ui/core';
+import {connect} from 'react-redux';
 
-export default function OutputFormFields(props) {
+function OutputFormFields(props) {
+
     return (
       <React.Fragment>
         <CssBaseline />
@@ -19,10 +21,17 @@ export default function OutputFormFields(props) {
                       fontSize="h6.fontSize"
                       borderRadius={10}
                       borderColor="error.main">
-                      <CircularProgress disableShrink />
-                      <pre>{props.text}</pre> 
+                      {/* <CircularProgress disableShrink /> */}
+                      <pre>{props.sample_output}</pre> 
                 </Box>
             </Container>
       </React.Fragment>
     );
-  }
+}
+
+const mapStateToProps = (state) =>({
+  sample_output : state.sample_output
+})
+
+export default connect(mapStateToProps)(OutputFormFields);
+
