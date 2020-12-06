@@ -74,7 +74,7 @@ def create_var(cond,var,input_for,original=False):
     elif cond["type"] in ["list","array"]:
         ele = []
         req_var = {x:None for x in re.findall(r'(?<=(?<!\{)\{)[^{}]*(?=\}(?!\}))', cond["value"])}
-        if "distinct" in cond:
+        if cond["distinct"]=='true':
             req_lst = []
             pro = 1
             for i in req_var:
@@ -189,5 +189,42 @@ def get_sample_output(doc):
             return inp
                 
 
-    
+def compare_code(doc):
+    if "preprocess" in doc:
+        os.system(doc["preprocess"])
+        print("Preprocessing completed.")
+
+    if "files" in doc:
+        if "brute" in doc["files"]:
+            brute = doc["files"]['brute']
+        code = doc["files"]['code']
+
+    if doc.get('input-creator-file','')=='':
+        input_for = doc["input"]
+        times = input_for["times"]
+        var = { x:None for x in input_for["variables"]}
+    prev_pro = 0
+    for i,inp in enumerate(yield_input(times,doc,var,input_for)):
+        try:
+            f1_out = subprocess.check_output(brute, input = str.encode(inp),shell=True).decode('utf-8')
+        except:
+            yield {"success":False,"input":inp, "message":"Error occured in File-1"}
+            return
+
+        try:
+            f2_out = subprocess.check_output(code, input = str.encode(inp),shell=True).decode('utf-8')
+        except:
+            yield {"success":False,"input":inp, "message":"Error occured in File-2"}
+            return
+
+        if(f1_out.strip()!=f2_out.strip()):
+            yield {"success":False,"input":inp,"message":"Both getting different answer","file1":f1_out,"file2":f2_out}
+            return
+
+        if prev_pro != ((i+1)*100)//times :
+            yield {"progress": ((i+1)*100)//times}
+            prev_pro = ((i+1)*100)//times
+        # print(i,inp,f1_out,f2_out)
+    yield {"success":True,"message":"No differences found"}
+
 

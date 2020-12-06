@@ -3,3 +3,5 @@
 .vscode
 *.yaml
 __pycache__
+*todo.txt
+temp

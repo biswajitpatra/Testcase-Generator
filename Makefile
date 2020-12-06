@@ -10,13 +10,13 @@ run:
 	@echo "Building files..."
 	@cd client && yarn build
 	@echo "Starting server"
-	@python3 server.py
+	@python3 app.py
 
 frontend:
 	@cd client && yarn start server
 
 backend:
-	@python3 server.py
+	@python3 app.py
 
 
 
