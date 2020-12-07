@@ -82,7 +82,7 @@ def create_var(cond,var,input_for,original=False):
                 pro*= len(tmp)
                 req_lst.append(tmp)
             # print(req_lst)
-            indices = sample(pro,int(allrange(cond["length"],int).random()))
+            indices = sample(pro,int(allrange(cond["length"],int).get_lower_random(pro)))
             if "order" in cond:
                 if cond["order"]=="increasing":
                     indices.sort()
@@ -105,7 +105,7 @@ def create_var(cond,var,input_for,original=False):
                     f_arr.sort()
                 elif cond["order"]=="decreasing":
                     f_arr.sort(reverse=True)
-            for k in range(int(cond["length"])):
+            for k in range(int(allrange(cond["length"],int).random())):
                 for i,j in enumerate(req_var):
                     req_var[j] = str(f_arr[k][i])
                 ele.append(cond["value"].format(**req_var))
@@ -145,13 +145,6 @@ def yield_input(times,doc,var,input_for):
         while(checker==False):
             if input_for.get("testcases",'')!='':
                 testcases = allrange(input_for["testcases"],int).random()
-                # if '-' in str(input_for["testcases"]):
-                #     lower_limit,upper_limit = input_for["testcases"].split('-')
-                #     lower_limit = int(lower_limit)
-                #     upper_limit = int(upper_limit)
-                #     testcases = randint(lower_limit,upper_limit)
-                # else:    
-                #     testcases = int(input_for["testcases"])
                 ret = str(testcases)+'\n'
             else:
                 testcases = 1

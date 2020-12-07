@@ -55,6 +55,41 @@ class allrange:
                     return d
                 key-=1
         raise Exception("Key out of range")
+    
+    def get_lower_random(self,k):
+        new_data = []
+        new_data_length = 0
+        for d in self.data:
+            if type(d) == list:
+                if d[0][0] > k:
+                    break
+                elif d[0][-1] <=k:
+                    new_data.append(d)
+                    new_data_length += d[0][-1] - d[0][0] + 1
+                else:
+                    new_data.append([range(d[0][0],k+1),d[1]])
+                    new_data_length += k - d[0][0] + 1
+            else:
+                if d<=k:
+                    new_data.append(d)
+                    new_data_length+=1
+                else:
+                    break
+        
+        if len(new_data)==0:
+            raise Exception("No suitable length found for unique values")
+        # print(new_data)
+        ind = random.randint(0,new_data_length-1)
+        for d in new_data:
+            if type(d) == list:
+                if ind < d[0][-1] - d[0][0] + 1:
+                    return d[1](d[0][ind])
+                ind -= d[0][-1] - d[0][0] + 1
+            else:
+                if ind == 0:
+                    return d
+                ind-=1
+
 
     def random(self,k=1):
         values=[]
