@@ -6,7 +6,7 @@ from server.main import get_sample_output, compare_code
 import json
 
 
-app = Flask(__name__ ,static_folder='client/build')
+app = Flask(__name__ ,static_folder='client/build',static_url_path='')
 cors = CORS(app)
 
 def event_stream(func,*args):
