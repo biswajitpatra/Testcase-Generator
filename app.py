@@ -44,6 +44,7 @@ def sample_output():
 @cross_origin()
 def compare_code_request():
     content = request.get_json()
+    print(content)
     return Response(event_stream(compare_code,content),mimetype="text/event-stream")
 
 @app.route('/')

@@ -70,7 +70,7 @@ def create_var(cond,var,input_for,original=False):
     if cond["type"] in ["integer","int"]:
         ele = int(allrange(str(cond["range"]),int).random())
     elif cond["type"] in ["string","str"]:
-        ele = ''.join(allrange(str(cond["range"]),str).random(k = int(cond["length"])))
+        ele = ''.join(allrange(str(cond["range"]),str).random(k = int(allrange(cond["length"],int).random())))
     elif cond["type"] in ["list","array"]:
         ele = []
         req_var = {x:None for x in re.findall(r'(?<=(?<!\{)\{)[^{}]*(?=\}(?!\}))', cond["value"])}
@@ -82,7 +82,7 @@ def create_var(cond,var,input_for,original=False):
                 pro*= len(tmp)
                 req_lst.append(tmp)
             # print(req_lst)
-            indices = sample(pro,int(cond["length"]))
+            indices = sample(pro,int(allrange(cond["length"],int).random()))
             if "order" in cond:
                 if cond["order"]=="increasing":
                     indices.sort()
@@ -95,7 +95,7 @@ def create_var(cond,var,input_for,original=False):
                 ele.append(cond["value"].format(**req_var))
         else:
             f_arr = []
-            for _ in range(int(cond["length"])):
+            for _ in range(int(allrange(cond["length"],int).random())):
                 tmp_arr = []
                 for i in req_var:
                     tmp_arr.append(create_var(copy.deepcopy(input_for["variables"][i]),var,input_for,True))
@@ -144,13 +144,14 @@ def yield_input(times,doc,var,input_for):
         checker = False
         while(checker==False):
             if input_for.get("testcases",'')!='':
-                if '-' in str(input_for["testcases"]):
-                    lower_limit,upper_limit = input_for["testcases"].split('-')
-                    lower_limit = int(lower_limit)
-                    upper_limit = int(upper_limit)
-                    testcases = randint(lower_limit,upper_limit)
-                else:    
-                    testcases = int(input_for["testcases"])
+                testcases = allrange(input_for["testcases"],int).random()
+                # if '-' in str(input_for["testcases"]):
+                #     lower_limit,upper_limit = input_for["testcases"].split('-')
+                #     lower_limit = int(lower_limit)
+                #     upper_limit = int(upper_limit)
+                #     testcases = randint(lower_limit,upper_limit)
+                # else:    
+                #     testcases = int(input_for["testcases"])
                 ret = str(testcases)+'\n'
             else:
                 testcases = 1

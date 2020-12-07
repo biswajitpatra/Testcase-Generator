@@ -99,7 +99,7 @@ class Var extends React.Component{
   }
 
   handleChange(event){
-    // console.log(event.target.name);
+    // console.log(event.target.name,event.target.value);
     if(event.target.name==="Part"){
       this.setState({[event.target.name]:event.target.checked},()=>{
         if(this.props.edit){

@@ -1,4 +1,5 @@
 import random
+import re
 
 class allrange:
     def __init__(self, string, var=None ):
@@ -13,22 +14,28 @@ class allrange:
 
         self.data = []
         for v in value:
-            if "-" in v:
-                if "-"==v:
-                    self.data.append(v)
-                    self.length+=1
-                else:
+            if "-"==v:
+                self.data.append(v)
+                self.length+=1
+            elif "-" in v and v.rfind('-')!=0:
+                if v.count("-")==1:
                     lower_bound,upper_bound = v.split("-")
-                    if var == str:
-                        if lower_bound.isdigit():
-                            self.data.append([range(int(lower_bound),int(upper_bound)+1),str])
-                            self.length += int(upper_bound) - int(lower_bound) + 1
-                        else:
-                            self.data.append([range(ord(lower_bound),ord(upper_bound)+1),chr])
-                            self.length += ord(upper_bound) - ord(lower_bound) + 1
-                    elif var == int:
-                        self.data.append([range(int(lower_bound),int(upper_bound)+1),int])
+                else:
+                    (ind,_) = re.search(r"\d(-)","-3-2").span(1)
+                    lower_bound = v[:ind]
+                    upper_bound = v[ind+1:]
+
+                if var == str:
+                    if lower_bound.isdigit() or (len(lower_bound)>1 and lower_bound[0]=='-' and lower_bound[1:].isdigit()):
+                        self.data.append([range(int(lower_bound),int(upper_bound)+1),str])
                         self.length += int(upper_bound) - int(lower_bound) + 1
+                    else:
+                        self.data.append([range(ord(lower_bound),ord(upper_bound)+1),chr])
+                        self.length += ord(upper_bound) - ord(lower_bound) + 1
+                elif var == int:
+                    self.data.append([range(int(lower_bound),int(upper_bound)+1),int])
+                    self.length += int(upper_bound) - int(lower_bound) + 1
+
             else:
                 self.data.append(var(v))
                 self.length+=1
