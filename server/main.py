@@ -10,7 +10,7 @@ import itertools
 import argparse
 from functools import partial
 from .range_class import allrange
-
+from .graph import create_graph
 
 def evaluator(match):
 	match = match.group()
@@ -63,17 +63,22 @@ def create_var(cond,var,input_for,original=False):
 
     for i in cond :     
         if type(cond[i]) == str:
-            if ("{}" not in cond[i]) and (i not in ["value","format"]):
+            if ("{}" not in cond[i]) and (i not in ["value","format","weight"]):
                 cond[i] = cond[i].format(**var)
                 cond[i] = re.sub('<.+?>',evaluator,cond[i])
 
     if cond["type"] in ["integer","int"]:
         ele = int(allrange(str(cond["range"]),int).random())
+
     elif cond["type"] in ["string","str"]:
         ele = ''.join(allrange(str(cond["range"]),str).random(k = int(allrange(cond["length"],int).random())))
+
     elif cond["type"] in ["list","array"]:
         ele = []
+        ori_val=[]
         req_var = {x:None for x in re.findall(r'(?<=(?<!\{)\{)[^{}]*(?=\}(?!\}))', cond["value"])}
+        length = int(allrange(cond["length"],int).random())
+
         if cond["distinct"]=='true':
             req_lst = []
             pro = 1
@@ -92,10 +97,11 @@ def create_var(cond,var,input_for,original=False):
                 idx = product_nth(req_lst,ind)
                 for j,i in enumerate(req_var):
                     req_var[i]= idx[j]
-                ele.append(cond["value"].format(**req_var))
+                ori_val.append(copy.deepcopy(req_var))
+                # ele.append(cond["value"].format(**req_var))
         else:
-            f_arr = []
-            for _ in range(int(allrange(cond["length"],int).random())):
+            f_arr = []     
+            for _ in range(length):
                 tmp_arr = []
                 for i in req_var:
                     tmp_arr.append(create_var(copy.deepcopy(input_for["variables"][i]),var,input_for,True))
@@ -105,12 +111,57 @@ def create_var(cond,var,input_for,original=False):
                     f_arr.sort()
                 elif cond["order"]=="decreasing":
                     f_arr.sort(reverse=True)
-            for k in range(int(allrange(cond["length"],int).random())):
+            for k in range(length):
                 for i,j in enumerate(req_var):
-                    req_var[j] = str(f_arr[k][i])
-                ele.append(cond["value"].format(**req_var))
+                    req_var[j] = f_arr[k][i]
+                ori_val.append(copy.deepcopy(req_var))
+
+        if original:
+            return ori_val
+        for k in ori_val:
+            ele.append(cond["value"].format(**k))
+        for i,v in enumerate(ele):
+            ele[i] = re.sub('<.+?>',evaluator,ele[i])
         ele = ''.join(ele)
-    # elif cond["type"] in ["tree"]:
+    elif cond["type"] in ["graph"]:
+        ele=[]
+        nodes = allrange(cond["nodes"],int).random()
+        directed = (cond["directed"]=="true")
+        connected = (cond["connected"]=="true")
+        cycles = (cond["cycles"]=="true")
+        nodes = [i+1 for i in range(nodes)]
+        
+        gh = create_graph(nodes,directed,cycles,connected)
+        lst_weights = []
+
+        if cond["weight"] != '':
+            variables = set(re.findall(r'(?<=(?<!\{)\{)[^{}]*(?=\}(?!\}))', cond["weight"]))
+            if '' in variables:
+                variables.remove('')
+            if len(variables) > 0:
+                req_var = {x:None for x in variables}
+                for _ in range(gh.size()):
+                    for i in req_var:
+                        req_var[i] = create_var(copy.deepcopy(input_for["variables"][i]),var,input_for,True)
+                    tmp_value = variables.format(**req_var)
+                    tmp_value = re.sub('<.+?>',evaluator,tmp_value)
+                    lst_weights.append(tmp_value)
+            else:
+                for _ in range(gh.size()):
+                    lst_weights.append(allrange(cond["weight"],str))    
+
+        if original:
+            return gh,lst_weights
+        if cond["weight"] != "":
+            for e,w in zip(gh.get_edges(),lst_weights):
+                ele.append(f"{e[0]} {e[1]} {w}")
+        else:
+            for e in gh.get_edges():
+                ele.append(f"{e[0]} {e[1]}")
+        
+        ele = '\n'.join(ele)
+    elif cond["type"] in ["tree"]:
+        raise NotImplementedError()
     #     arr = [i for i in range(1,int(cond["length"])+1)]
     #     random.shuffle(arr)
     #     if "root" in cond:
@@ -121,12 +172,6 @@ def create_var(cond,var,input_for,original=False):
     #     while(i<len(arr)):
                         
         
-    # elif cond["type"] in ["graph"]:
-    #     cond["nodes"] = int(cond["nodes"])
-    #     cond["directed"] = 
-
-        
-    
     if original:
         return ele
     return str(ele)
@@ -152,7 +197,7 @@ def yield_input(times,doc,var,input_for):
 
             for _ in range(testcases):
                 for i in var:
-                    if "part" not in input_for["variables"][i]:
+                    if input_for["variables"][i].get('part',False) == False:
                         var[i] = create_var(copy.deepcopy(input_for["variables"][i]),var,input_for)
                 ret += input_for["structure"].format(**var)
             
@@ -184,10 +229,11 @@ def get_sample_output(doc):
                 
 
 def compare_code(doc):
+    yield {"text":"Preprocessing started..."}
     if "preprocess" in doc:
         os.system(doc["preprocess"])
         print("Preprocessing completed.")
-
+    yield {"text":"Starting tests ......"}
     if "files" in doc:
         if "brute" in doc["files"]:
             brute = doc["files"]['brute']
@@ -216,7 +262,7 @@ def compare_code(doc):
             return
 
         if prev_pro != ((i+1)*100)//times :
-            yield {"progress": ((i+1)*100)//times}
+            yield {"text":"Finding errors...","progress": ((i+1)*100)//times}
             prev_pro = ((i+1)*100)//times
         # print(i,inp,f1_out,f2_out)
     yield {"success":True,"message":"No differences found"}

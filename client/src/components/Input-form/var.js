@@ -76,11 +76,11 @@ class Var extends React.Component{
         this.state = this.props.value;
       else{
         var param_t = {}
-        for(var key in params[this.props.type]){
-          param_t[key] = params[this.props.type][key].value;
+        for(let [key,value] of Object.entries(params[this.props.type])){
+          param_t[key] = value.value;
         }
-        param_t["Name"] = "";
-        param_t["Part"] = false;
+        param_t["name"] = "";
+        param_t["part"] = false;
         this.state =  param_t;
       }
       // console.log(this.state);
@@ -94,18 +94,18 @@ class Var extends React.Component{
   handleDelete(event){
     this.props.dispatch({
       type:"delete",
-      name:this.state.Name,
+      name:this.state.name,
     });
   }
 
   handleChange(event){
     // console.log(event.target.name,event.target.value);
-    if(event.target.name==="Part"){
+    if(event.target.name==="part"){
       this.setState({[event.target.name]:event.target.checked},()=>{
         if(this.props.edit){
           this.props.dispatch({
             type:"update",
-            name:this.state.Name,
+            name:this.state.name,
             value:this.state,
           });
         }
@@ -115,7 +115,7 @@ class Var extends React.Component{
         if(this.props.edit){
           this.props.dispatch({
             type:"update",
-            name:this.state.Name,
+            name:this.state.name,
             value:this.state,
           });
         }
@@ -126,16 +126,16 @@ class Var extends React.Component{
   handleAdd(event){
     this.props.dispatch({
       type:"add",
-      name:this.state.Name,
+      name:this.state.name,
       value:this.state,
     });
 
     var param_t = {}
-    for(var key in params[this.props.type]){
-      param_t[key] = params[this.props.type][key].value;
+    for(let [key,value] of Object.entries(params[this.props.type])){
+      param_t[key] = value.value;
     }
-    param_t["Name"] = "";
-    param_t["Part"] = false;
+    param_t["name"] = "";
+    param_t["part"] = false;
     this.setState(param_t);
   }
 
@@ -154,17 +154,17 @@ class Var extends React.Component{
               variant="outlined"
               fullWidth
               size="small"
-              value={this.state.Name}
+              value={this.state.name}
               onChange={this.handleChange}
               disabled={this.props.edit}
-              name="Name"/>
+              name="name"/>
               {
-                Object.keys(params[this.props.type]).map((ob,i)=>{
-                    if("options" in params[this.props.type][ob]){
+                Object.entries(params[this.props.type]).map(([ob,obv],i)=>{
+                    if("options" in obv){
                         return (
                           <TextField
                               select
-                              label={ob}
+                              label={obv.name}
                               variant="outlined"
                               fullWidth
                               size="small"
@@ -173,7 +173,7 @@ class Var extends React.Component{
                               onChange={this.handleChange}
                               name={ob}
                               >
-                                    {params[this.props.type][ob]["options"].map((option) => (
+                                    {obv.options.map((option) => (
                                       <MenuItem key={option} value={option}>
                                         {option}
                                       </MenuItem>
@@ -183,9 +183,10 @@ class Var extends React.Component{
                     }else{
                         return (
                           <TextField
-                              label={ob}
+                              label={obv.name}
                               variant="outlined"
                               fullWidth
+                              multiline={obv.multiline?true:false}
                               size="small" 
                               key={i}
                               value={this.state[ob]}
@@ -200,9 +201,9 @@ class Var extends React.Component{
             <FormControlLabel
               control={<IOSSwitch/>}
               label="Part"
-              checked={this.state.Part}
+              checked={this.state.part}
               onChange={this.handleChange}  
-              name="Part"
+              name="part"
             /> 
           </Box>
           {button}

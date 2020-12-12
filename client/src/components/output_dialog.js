@@ -28,10 +28,10 @@ export default function OutputDialog(props){
   if(!("success" in props.data)){
               content = (<DialogContent>
                           <DialogContentText>
-                                Analyzing results ...
+                                {props.data.text?props.data.text:"Connecting to server....."}
                           </DialogContentText>
                             <div className={classes.root}>
-                                <LinearProgress color="secondary" variant="determinate" value={props.data.progress?props.data.progress:0}/>
+                                {props.data.progress?<LinearProgress color="secondary" variant="determinate" value={props.data.progress}/>:<LinearProgress/>}
                             </div>
                         </DialogContent>);
   }else{
