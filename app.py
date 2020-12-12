@@ -1,6 +1,5 @@
 from flask import Flask,render_template,send_from_directory,request, jsonify,make_response,Response
 from flask_cors import CORS, cross_origin
-import boto3
 from time import sleep
 from server.main import get_sample_output, compare_code
 import json

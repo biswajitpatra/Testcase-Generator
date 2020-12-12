@@ -1,19 +1,23 @@
 {
     "Integer":{
-        "range":{"value":""}
+        "range":{"value":"","name":"Range"}
     },
     "String":{
-        "length":{"value":""},
-        "range":{"value":""}
+        "length":{"value":"","name":"Length"},
+        "range":{"value":"","name":"Range"}
     },
     "Array":{
-        "length":{"value":""},
-        "value":{"value":""},
-        "order":{"options":["None","increasing","decreasing"],"value":["None"]},
-        "distinct":{"options":["false","true"],"value":["false"]}
+        "length":{"value":"","name":"Length"},
+        "value":{"value":"","multiline":true,"name":"Value"},
+        "order":{"options":["None","increasing","decreasing"],"value":"None","name":"Order"},
+        "distinct":{"options":["false","true"],"value":"false","name":"Distinct"}
     },
     "Graph":{
-
+        "nodes":{"value":"","name":"No of nodes"},
+        "cycles":{"options":["false","true"],"value":"true","name":"Cyclic"},
+        "directed":{"options":["false","true"],"value":"false","name":"Directed"},
+        "connected":{"options":["false","true"],"value":"true","name":"Fully Connected"},
+        "weight":{"value":"","name":"Weight"}
     },
     "Tree":{
 
