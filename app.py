@@ -12,31 +12,15 @@ def event_stream(func,*args):
     for val in func(*args):
             yield "data:" + json.dumps(val) + " \n\n"
 
-
-
-# @app.route('/home',methods=['POST'])
-# @cross_origin()
-# def check():
-#     # print(request.get_json())
-#     def generate():
-#         y=1
-#         while True:
-#             if y<2:
-#                 sleep(0.25)
-#                 print(y)
-#                 yield {'progress':y}
-#             else:
-#                 yield {'message':"WEELL DONE YOU CAN DO IT",'success':False,'inp':"check this outfaskjddddddddddddvvvvvvvvvvvvvvvvvvvvvfsfjkgdsh\n\n\nfjasjas",'file1':'xst ok its ok\n\n\n\n\n\n\n\n\n\n\n\nfsajkfak','file2':'ast'}
-#                 break
-#             y+=1
-#     return Response(event_stream(generate),mimetype="text/event-stream")
-
 @app.route('/sample_output',methods=['POST'])
 @cross_origin()
 def sample_output():
     content = request.get_json()
     print(content)
-    output = get_sample_output(content)
+    try:
+        output = get_sample_output(content)
+    except Exception as e:
+        output = str(e)
     return output
 
 @app.route('/compare_code',methods=["POST"])

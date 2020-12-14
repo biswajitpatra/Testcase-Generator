@@ -11,6 +11,7 @@ import argparse
 from functools import partial
 from .range_class import allrange
 from .graph import create_graph
+from .variable_graph import variable_graph
 
 def evaluator(match):
 	match = match.group()
@@ -142,13 +143,10 @@ def create_var(cond,var,input_for,original=False):
                 req_var = {x:None for x in variables}
                 for _ in range(gh.size()):
                     for i in req_var:
-                        req_var[i] = create_var(copy.deepcopy(input_for["variables"][i]),var,input_for,True)
-                    tmp_value = variables.format(**req_var)
+                        req_var[i] = create_var(copy.deepcopy(input_for["variables"][i]),var,input_for)
+                    tmp_value = cond["weight"].format(**req_var)
                     tmp_value = re.sub('<.+?>',evaluator,tmp_value)
-                    lst_weights.append(tmp_value)
-            else:
-                for _ in range(gh.size()):
-                    lst_weights.append(allrange(cond["weight"],str))    
+                    lst_weights.append(allrange(tmp_value,str).random())
 
         if original:
             return gh,lst_weights
@@ -162,20 +160,10 @@ def create_var(cond,var,input_for,original=False):
         ele = '\n'.join(ele)
     elif cond["type"] in ["tree"]:
         raise NotImplementedError()
-    #     arr = [i for i in range(1,int(cond["length"])+1)]
-    #     random.shuffle(arr)
-    #     if "root" in cond:
-    #         tmp = arr.index(int(cond["root"]))
-    #         arr[0] , arr[tmp] = arr[tmp] , arr[0]
-        
-    #     i = 0
-    #     while(i<len(arr)):
-                        
         
     if original:
         return ele
     return str(ele)
-
 
 
 def yield_input(times,doc,var,input_for):
@@ -184,6 +172,8 @@ def yield_input(times,doc,var,input_for):
             out = subprocess.check_output(doc['input-creator-file'],shell=True).decode('utf-8')
             yield out
         return
+
+    var_order = variable_graph(input_for["variables"]).get_order()
 
     for _ in range(times):
         checker = False
@@ -196,9 +186,8 @@ def yield_input(times,doc,var,input_for):
                 ret = ""
 
             for _ in range(testcases):
-                for i in var:
-                    if input_for["variables"][i].get('part',False) == False:
-                        var[i] = create_var(copy.deepcopy(input_for["variables"][i]),var,input_for)
+                for i in var_order:
+                    var[i] = create_var(copy.deepcopy(input_for["variables"][i]),var,input_for)
                 ret += input_for["structure"].format(**var)
             
             checker = True
